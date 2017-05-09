@@ -1,6 +1,5 @@
-// Computer Graphics (3504837)- Exercise 1
-// Date: 19.4.2017
-// students name: daria dadov (ID:319575676), or amit (ID:301427647)
+// Computer Graphics (3504837)- Exercise 2
+// students name: daria dadov (ID:319575676), or amit (ID:301427647),dima girya (319308060)
 
 
 console.log(data);
@@ -81,6 +80,71 @@ function getMousePos(canvas, evt) {
         y: evt.clientY - rect.top
     };
 }
+function transformScalingShape(){
+    clearBoard();
+    drawShapesFromData(scalingShape(1.5,data));
+}
+function scalingShape(scalingFactor, data) {
+    var dataResult = [];
+    data.forEach(function (obj) {
+        var resultObject;
+        switch (obj.type) {
+            case "line":
+                console.log("Transform moveShapeTo of type line");
+                resultObject = {
+                    "type": "line",
+                    "points": [
+                        transformScalePoint(obj, 0,scalingFactor),
+                        transformScalePoint(obj, 1,scalingFactor)
+                    ]
+                };
+                break;
+            case "circle":
+                console.log("Transform moveShapeTo of type circle");
+                resultObject = {
+                    "type": "circle",
+                    "points": [
+                        transformScalePoint(obj, 0, scalingFactor),
+                        transformScalePoint(obj, 1, scalingFactor)
+                    ]
+                };
+                break;
+            case "polygon":
+                console.log("Transform moveShapeTo of type polygon");
+                resultObject = {
+                    "type": "polygon",
+                    "numOfRibs": obj.numOfRibs,
+                    "points": [
+                        transformScalePoint(obj, 0, scalingFactor),
+                        transformScalePoint(obj, 1, scalingFactor)
+                    ]
+                };
+                break;
+            case "curve":
+                console.log("Transform moveShapeTo of type curve");
+                resultObject = {
+                    "type": "polygon",
+                    "numOfSections": obj.numOfSections,
+                    "points": [
+                        transformScalePoint(obj, 0, scalingFactor),
+                        transformScalePoint(obj, 1, scalingFactor),
+                        transformScalePoint(obj, 2, scalingFactor),
+                        transformScalePoint(obj, 3, scalingFactor)
+                    ]
+                };
+                break
+        }
+        dataResult.push(resultObject);
+    });
+    return dataResult;
+}
+
+function transformScalePoint(obj,index,scaleFactor){
+    return {
+        x: obj.points[index].x * scaleFactor,
+        y: obj.points[index].y * scaleFactor
+    }
+}
 
 function moveShapeTo(daltaX, daltaY, data) {
     var dataResult = [];
@@ -92,9 +156,9 @@ function moveShapeTo(daltaX, daltaY, data) {
                 resultObject = {
                     "type": "line",
                     "points": [
-                        transformPoint(obj,0,daltaX,daltaY),
-                        transformPoint(obj,1,daltaX,daltaY)
-                       ]
+                        transformMovePoint(obj, 0, daltaX, daltaY),
+                        transformMovePoint(obj, 1, daltaX, daltaY)
+                    ]
                 };
                 break;
             case "circle":
@@ -102,8 +166,8 @@ function moveShapeTo(daltaX, daltaY, data) {
                 resultObject = {
                     "type": "circle",
                     "points": [
-                        transformPoint(obj,0,daltaX,daltaY),
-                        transformPoint(obj,1,daltaX,daltaY)
+                        transformMovePoint(obj, 0, daltaX, daltaY),
+                        transformMovePoint(obj, 1, daltaX, daltaY)
                     ]
                 };
                 break;
@@ -111,10 +175,10 @@ function moveShapeTo(daltaX, daltaY, data) {
                 console.log("Transform moveShapeTo of type polygon");
                 resultObject = {
                     "type": "polygon",
-                    "numOfRibs":obj.numOfRibs,
+                    "numOfRibs": obj.numOfRibs,
                     "points": [
-                        transformPoint(obj,0,daltaX,daltaY),
-                        transformPoint(obj,1,daltaX,daltaY)
+                        transformMovePoint(obj, 0, daltaX, daltaY),
+                        transformMovePoint(obj, 1, daltaX, daltaY)
                     ]
                 };
                 break;
@@ -122,12 +186,12 @@ function moveShapeTo(daltaX, daltaY, data) {
                 console.log("Transform moveShapeTo of type curve");
                 resultObject = {
                     "type": "polygon",
-                    "numOfSections":obj.numOfSections,
+                    "numOfSections": obj.numOfSections,
                     "points": [
-                        transformPoint(obj,0,daltaX,daltaY),
-                        transformPoint(obj,1,daltaX,daltaY),
-                        transformPoint(obj,2,daltaX,daltaY),
-                        transformPoint(obj,3,daltaX,daltaY)
+                        transformMovePoint(obj, 0, daltaX, daltaY),
+                        transformMovePoint(obj, 1, daltaX, daltaY),
+                        transformMovePoint(obj, 2, daltaX, daltaY),
+                        transformMovePoint(obj, 3, daltaX, daltaY)
                     ]
                 };
                 break
@@ -137,8 +201,8 @@ function moveShapeTo(daltaX, daltaY, data) {
     return dataResult;
 }
 
-function transformPoint(obj,index,daltaX,daltaY) {
-   return {
+function transformMovePoint(obj, index, daltaX, daltaY) {
+    return {
         x: obj.points[index].x + daltaX,
         y: obj.points[index].y + daltaY
     }
@@ -146,27 +210,27 @@ function transformPoint(obj,index,daltaX,daltaY) {
 
 //add an event listener to mouse pressing
 
-var firstPointX,firstPointY,secPointX,secPointY;
-var counter=0;
+var firstPointX, firstPointY, secPointX, secPointY;
+var counter = 0;
 
 canvasBoard.addEventListener('click', function (evt) {
-    if(isNeedToMove==true){
+    if (isNeedToMove == true) {
         var mousePos = getMousePos(canvasBoard, evt);
         console.log("user clicked on board:" + mousePos.x + "," + mousePos.y);
-        if(counter==0){
-            firstPointX=mousePos.x;
-            firstPointY=mousePos.y;
+        if (counter == 0) {
+            firstPointX = mousePos.x;
+            firstPointY = mousePos.y;
             counter++;
         }
-        else if(counter==1){
-            secPointX=mousePos.x;
-            secPointY=mousePos.y;
-            var deltaX=firstPointX-secPointX;
-            var deltaY=firstPointY-secPointY;
+        else if (counter == 1) {
+            secPointX = mousePos.x;
+            secPointY = mousePos.y;
+            var deltaX = secPointX - firstPointX;
+            var deltaY = secPointY - firstPointY;
             clearBoard();
-            drawShapesFromData(moveShapeTo(deltaX, deltaY,data));
-            counter=0;
-            isNeedToMove=false;
+            drawShapesFromData(moveShapeTo(deltaX, deltaY, data));
+            counter = 0;
+            isNeedToMove = false;
         }
 
     }
