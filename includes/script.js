@@ -5,6 +5,9 @@
 console.log(data);
 
 
+var pseudoCentralCoord ;
+
+
 // points variables for line,circle,polygon
 var firstPoint_X = undefined;
 var firstPoint_Y = undefined;
@@ -20,36 +23,56 @@ var isNeedToChangechange_2_BezierPoint = false;
 var isNeedToChangechange_3_BezierPoint = false;
 var isNeedToChangechange_4_BezierPoint = false;
 
-// points variables for Bezier curve
-var first_BezierPoint_X;
-var first_BezierPoint_Y;
 
-var second_BezierPoint_X;
-var second_BezierPoint_Y;
+var isNeedToMove = false;
+function moveShape() {
+    isNeedToMove = true;
+}
+var isNeedToScale = false;
 
-var third_BezierPoint_X;
-var third_BezierPoint_Y;
+function transformScalingShape() {
+    isNeedToScale = true;
+}
 
-var fourth_BezierPoint_X;
-var fourth_BezierPoint_Y;
+/*
+ // points variables for Bezier curve
+ var first_BezierPoint_X;
+ var first_BezierPoint_Y;
 
+ var second_BezierPoint_X;
+ var second_BezierPoint_Y;
 
+ var third_BezierPoint_X;
+ var third_BezierPoint_Y;
+
+ var fourth_BezierPoint_X;
+ var fourth_BezierPoint_Y;
+
+ */
 //counter for limiting the number of drawing on the board
 var numOfPoints = 0;
 
-var firstP = document.getElementById("firstP"); //the Gui first point coordinates
-var secondP = document.getElementById("secondP"); //the Gui second point coordinates
+/*
+ var firstP = document.getElementById("firstP"); //the Gui first point coordinates
+ var secondP = document.getElementById("secondP"); //the Gui second point coordinates
 
-//bazier point GUI
-var p_of_1_BezierPopint = document.getElementById("1_BezierPopint");
-var p_of_2_BezierPopint = document.getElementById("2_BezierPopint");
-var p_of_3_BezierPopint = document.getElementById("3_BezierPopint");
-var p_of_4_BezierPopint = document.getElementById("4_BezierPopint");
-
+ //bazier point GUI
+ var p_of_1_BezierPopint = document.getElementById("1_BezierPopint");
+ var p_of_2_BezierPopint = document.getElementById("2_BezierPopint");
+ var p_of_3_BezierPopint = document.getElementById("3_BezierPopint");
+ var p_of_4_BezierPopint = document.getElementById("4_BezierPopint");
+ */
 //the board
 var canvasBoard = document.getElementById("workingZone");
 var ctx = canvasBoard.getContext("2d");
 
+
+function calculateDelta(x1, y1, x2, y2) {
+    return {
+        x: x1 - x2,
+        y: y1 - y2
+    }
+}
 
 function clearBoard() {
     console.log("clearBoard");
@@ -66,7 +89,7 @@ function putPixel(x, y) {
 }
 
 function deletePixel(x, y) {
-    console.log("delete px----X:" + x + "  putpx----Y:" + y);
+    //console.log("delete px----X:" + x + "  putpx----Y:" + y);
     ctx = canvasBoard.getContext("2d");
     ctx.fillStyle = "yellow";
     ctx.fillRect(x, y, 1, 1);
@@ -80,10 +103,7 @@ function getMousePos(canvas, evt) {
         y: evt.clientY - rect.top
     };
 }
-function transformScalingShape(){
-    clearBoard();
-    drawShapesFromData(scalingShape(1.5,data));
-}
+
 function scalingShape(scalingFactor, data) {
     var dataResult = [];
     data.forEach(function (obj) {
@@ -94,8 +114,8 @@ function scalingShape(scalingFactor, data) {
                 resultObject = {
                     "type": "line",
                     "points": [
-                        transformScalePoint(obj, 0,scalingFactor),
-                        transformScalePoint(obj, 1,scalingFactor)
+                        transformScalePoint(obj, 0, scalingFactor),
+                        transformScalePoint(obj, 1, scalingFactor)
                     ]
                 };
                 break;
@@ -139,7 +159,7 @@ function scalingShape(scalingFactor, data) {
     return dataResult;
 }
 
-function transformScalePoint(obj,index,scaleFactor){
+function transformScalePoint(obj, index, scaleFactor) {
     return {
         x: obj.points[index].x * scaleFactor,
         y: obj.points[index].y * scaleFactor
@@ -214,15 +234,15 @@ var firstPointX, firstPointY, secPointX, secPointY;
 var counter = 0;
 
 canvasBoard.addEventListener('click', function (evt) {
-    if (isNeedToMove == true) {
-        var mousePos = getMousePos(canvasBoard, evt);
+    var mousePos = getMousePos(canvasBoard, evt);
+    if (isNeedToMove === true) {
         console.log("user clicked on board:" + mousePos.x + "," + mousePos.y);
-        if (counter == 0) {
+        if (counter === 0) {
             firstPointX = mousePos.x;
             firstPointY = mousePos.y;
             counter++;
         }
-        else if (counter == 1) {
+        else if (counter === 1) {
             secPointX = mousePos.x;
             secPointY = mousePos.y;
             var deltaX = secPointX - firstPointX;
@@ -232,22 +252,36 @@ canvasBoard.addEventListener('click', function (evt) {
             counter = 0;
             isNeedToMove = false;
         }
-
+    }
+    else if (isNeedToScale === true) {
+        scaleTransformation(mousePos.x,mousePos.y,data,1.5);
     }
 }, false);
 
-function changeFirstPoint() {
-    deletePixel(firstPoint_X, firstPoint_Y);
-    numOfPoints--;
-    isNeedToChangeFirst = true;
+function  scaleTransformation(x,y,data,scalingFactor) {
+   var dataMoved = moveShapeTo(-x,-y,data);
+   var dataTransformation  = scalingShape(scalingFactor,dataMoved);
+   var dataResult = moveShapeTo(x,y,dataTransformation);
+   clearBoard();
+   drawShapesFromData(dataResult);
 }
 
-function changeSecondPoint() {
-    deletePixel(secondPoint_X, secondPoint_Y);
-    numOfPoints--;
-    isNeedToChangeSecond = true;
-}
 
+/*
+ function changeFirstPoint() {
+ deletePixel(firstPoint_X, firstPoint_Y);
+ numOfPoints--;
+ isNeedToChangeFirst = true;
+ }
+
+ function changeSecondPoint() {
+ deletePixel(secondPoint_X, secondPoint_Y);
+ numOfPoints--;
+ isNeedToChangeSecond = true;
+ }
+ */
+
+/*
 function MyLine() {
 
     if (firstPoint_X == undefined || firstPoint_Y == undefined) {
@@ -257,12 +291,12 @@ function MyLine() {
         alert("second point isnt defined!");
     }
     else { //the two points defined by the user and now we can draw the line.
-        MyLine2(firstPoint_X, firstPoint_Y, secondPoint_X, secondPoint_Y);
+        drawLine(firstPoint_X, firstPoint_Y, secondPoint_X, secondPoint_Y);
     }
 }
-
+*/
 //drawing the line between first point to second point
-function MyLine2(firstPoint_X, firstPoint_Y, secondPoint_X, secondPoint_Y) {
+function drawLine(firstPoint_X, firstPoint_Y, secondPoint_X, secondPoint_Y) {
     var dx;
     var dy;
 
@@ -306,25 +340,26 @@ function calcRadius(x1, y1, x2, y2) {
 }
 
 //drawing the circle on the board
-function MyCircle() {
-    if (firstPoint_X == undefined || firstPoint_Y == undefined) {
-        alert("first point isnt defined!");
-    }
-    else if (secondPoint_X == undefined || secondPoint_Y == undefined) {
-        alert("second point isnt defined!");
-    }
-    else {
-        radius = calcRadius();
-        for (var angle = 0; angle < 720; angle++) {
-            var x = firstPoint_X + radius * Math.sin(angle);
-            var y = firstPoint_Y + radius * Math.cos(angle);
-            putPixel(x, y);
-        }
-    }
-}
+/*
+ function MyCircle() {
+ if (firstPoint_X == undefined || firstPoint_Y == undefined) {
+ alert("first point isnt defined!");
+ }
+ else if (secondPoint_X == undefined || secondPoint_Y == undefined) {
+ alert("second point isnt defined!");
+ }
+ else {
+ radius = calcRadius();
+ for (var angle = 0; angle < 720; angle++) {
+ var x = firstPoint_X + radius * Math.sin(angle);
+ var y = firstPoint_Y + radius * Math.cos(angle);
+ putPixel(x, y);
+ }
+ }
+ }
+ */
 
-
-function DrawCircle(x1, y1, x2, y2) {
+function drawCircle(x1, y1, x2, y2) {
     radius = calcRadius(x1, y1, x2, y2);
     for (var angle = 0; angle < 720; angle++) {
         var x = x1 + radius * Math.sin(angle);
@@ -333,35 +368,35 @@ function DrawCircle(x1, y1, x2, y2) {
     }
 }
 
+/*
+ //drawing the polygon on the board
+ function MyPolygon() {
+ if (firstPoint_X == undefined || firstPoint_Y == undefined) {
+ alert("first point isnt defined!");
+ }
+ else if (secondPoint_X == undefined || secondPoint_Y == undefined) {
+ alert("second point isnt defined!");
+ }
+ else {
+ radius = calcRadius();
+ var poly = document.getElementById("polyNum").value;
+ var lastPx = firstPoint_X + radius * Math.cos(0 * 2 * Math.PI / poly);
+ var lastPy = firstPoint_Y + radius * Math.sin(0 * 2 * Math.PI / poly);
+ for (var i = 1; i <= poly; i++) {
+ console.log(i);
+ var x = firstPoint_X + radius * Math.cos(i * 2 * Math.PI / poly);
+ var y = firstPoint_Y + radius * Math.sin(i * 2 * Math.PI / poly);
+ putPixel(x, y);
+ drawLine(lastPx, lastPy, x, y);
+ lastPx = x;
+ lastPy = y;
+ }
+ // numOfPoints=0;
+ }
 
-//drawing the polygon on the board
-function MyPolygon() {
-    if (firstPoint_X == undefined || firstPoint_Y == undefined) {
-        alert("first point isnt defined!");
-    }
-    else if (secondPoint_X == undefined || secondPoint_Y == undefined) {
-        alert("second point isnt defined!");
-    }
-    else {
-        radius = calcRadius();
-        var poly = document.getElementById("polyNum").value;
-        var lastPx = firstPoint_X + radius * Math.cos(0 * 2 * Math.PI / poly);
-        var lastPy = firstPoint_Y + radius * Math.sin(0 * 2 * Math.PI / poly);
-        for (var i = 1; i <= poly; i++) {
-            console.log(i);
-            var x = firstPoint_X + radius * Math.cos(i * 2 * Math.PI / poly);
-            var y = firstPoint_Y + radius * Math.sin(i * 2 * Math.PI / poly);
-            putPixel(x, y);
-            MyLine2(lastPx, lastPy, x, y);
-            lastPx = x;
-            lastPy = y;
-        }
-        // numOfPoints=0;
-    }
-
-}
-
-function DrawPolygon(x1, y1, x2, y2, numOfRibs) {
+ }
+ */
+function drawPolygon(x1, y1, x2, y2, numOfRibs) {
     radius = calcRadius(x1, y1, x2, y2);
     var lastPx = x1 + radius * Math.cos(0 * 2 * Math.PI / numOfRibs);
     var lastPy = y1 + radius * Math.sin(0 * 2 * Math.PI / numOfRibs);
@@ -370,25 +405,28 @@ function DrawPolygon(x1, y1, x2, y2, numOfRibs) {
         var x = x1 + radius * Math.cos(i * 2 * Math.PI / numOfRibs);
         var y = y1 + radius * Math.sin(i * 2 * Math.PI / numOfRibs);
         putPixel(x, y);
-        MyLine2(lastPx, lastPy, x, y);
+        drawLine(lastPx, lastPy, x, y);
         lastPx = x;
         lastPy = y;
     }
 
 }
 
-function change1_BezierPopint() {
-    isNeedToChangechange_1_BezierPoint = true;
-}
-function change2_BezierPopint() {
-    isNeedToChangechange_2_BezierPoint = true;
-}
-function change3_BezierPopint() {
-    isNeedToChangechange_3_BezierPoint = true;
-}
-function change4_BezierPopint() {
-    isNeedToChangechange_4_BezierPoint = true;
-}
+/*
+ function change1_BezierPopint() {
+ isNeedToChangechange_1_BezierPoint = true;
+ }
+ function change2_BezierPopint() {
+ isNeedToChangechange_2_BezierPoint = true;
+ }
+ function change3_BezierPopint() {
+ isNeedToChangechange_3_BezierPoint = true;
+ }
+
+ function change4_BezierPopint() {
+ isNeedToChangechange_4_BezierPoint = true;
+ }
+ */
 
 function drawBezierCurvest(x1, y1, x2, y2, x3, y3, x4, y4, numOfSections) {
     var buzierMatrix = math.matrix([[-1, 3, -3, 1], [3, -6, 3, 0], [-3, 3, 0, 0], [1, 0, 0, 0]]);
@@ -415,7 +453,7 @@ function drawBezierCurvest(x1, y1, x2, y2, x3, y3, x4, y4, numOfSections) {
         console.log(final_y._data[0][0]);
         console.log("*****************");
         putPixel(final_X._data[0][0], final_y._data[0][0]);
-        MyLine2(lastPointX, lastPointY, final_X._data[0][0], final_y._data[0][0]);
+        drawLine(lastPointX, lastPointY, final_X._data[0][0], final_y._data[0][0]);
         lastPointX = final_X._data[0][0];
         lastPointY = final_y._data[0][0];
     }
@@ -427,15 +465,15 @@ function drawShapesFromData(data) {
         switch (obj.type) {
             case "line":
                 console.log("drawShapesFromData: draw line");
-                MyLine2(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y);
+                drawLine(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y);
                 break;
             case "circle":
                 console.log("drawShapesFromData: draw circle");
-                DrawCircle(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y);
+                drawCircle(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y);
                 break;
             case "polygon":
                 console.log("drawShapesFromData: draw polygon");
-                DrawPolygon(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y, obj.numOfRibs);
+                drawPolygon(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y, obj.numOfRibs);
                 break;
             case "curve":
                 console.log("drawShapesFromData: draw curve");
@@ -445,8 +483,3 @@ function drawShapesFromData(data) {
 }
 
 drawShapesFromData(data);
-
-var isNeedToMove = false;
-function moveShape() {
-    isNeedToMove = true;
-}
