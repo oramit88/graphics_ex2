@@ -15,13 +15,11 @@ function moveShape() {
 }
 
 
-
 function transformScalingShape() {
     isNeedToScale = true;
     isNeedToMove = false;
     isNeedToRotation = false;
 }
-
 
 
 function transformRotationShape() {
@@ -41,9 +39,10 @@ var canvasBoard = document.getElementById("workingZone");
 var ctx = canvasBoard.getContext("2d");
 
 canvasBoard.addEventListener('click', function (evt) {
+    var deltaX;
+    var deltaY;
     var mousePos = getMousePos(canvasBoard, evt);
     if (isNeedToMove === true) {
-        console.log("user clicked on board:" + mousePos.x + "," + mousePos.y);
         if (counter === 0) {
             firstPointX = mousePos.x;
             firstPointY = mousePos.y;
@@ -52,10 +51,10 @@ canvasBoard.addEventListener('click', function (evt) {
         else if (counter === 1) {
             secPointX = mousePos.x;
             secPointY = mousePos.y;
-            var deltaX = secPointX - firstPointX;
-            var deltaY = secPointY - firstPointY;
+            deltaX = secPointX - firstPointX;
+            deltaY = secPointY - firstPointY;
             clearBoard();
-            drawShapesFromData(moveShapeTo(deltaX, deltaY, data));
+            drawShapes(moveShapeTo(deltaX, deltaY, data));
             counter = 0;
             isNeedToMove = false;
         }
@@ -65,11 +64,10 @@ canvasBoard.addEventListener('click', function (evt) {
         isNeedToScale = false;
     }
     else if (isNeedToRotation === true) {
-        rotationTransformation(mousePos.x, mousePos.y, data, 0.7);
-        isNeedToRotation = false;
+        rotationTransformation(mousePos.x, mousePos.y, data);
+
     }
 }, false);
-
 
 
 function clearBoard() {
@@ -79,7 +77,7 @@ function clearBoard() {
 
 function resetBoard() {
     clearBoard();
-    drawShapesFromData(data);
+    drawShapes(data);
 }
 
 
@@ -105,13 +103,29 @@ function getMousePos(canvas, evt) {
     };
 }
 
+function scaleTransformation(x, y, data, scalingFactor) {
+    var dataMoved = moveShapeTo(-x, -y, data);
+    var dataTransformation = scalingShape(scalingFactor, dataMoved);
+    var dataResult = moveShapeTo(x, y, dataTransformation);
+    clearBoard();
+    drawShapes(dataResult);
+}
+
+function rotationTransformation(x, y, data) {
+    var dataMoved = moveShapeTo(-x, -y, data);
+    var dataTransformation = rotationShape(x, y, dataMoved);
+    var dataResult = moveShapeTo(x, y, dataTransformation);
+    clearBoard();
+    drawShapes(dataResult);
+}
+
 function scalingShape(scalingFactor, data) {
     var dataResult = [];
     data.forEach(function (obj) {
         var resultObject;
         switch (obj.type) {
             case "line":
-                console.log("Transform moveShapeTo of type line");
+                //  console.log("Transform moveShapeTo of type line");
                 resultObject = {
                     "type": "line",
                     "points": [
@@ -121,7 +135,7 @@ function scalingShape(scalingFactor, data) {
                 };
                 break;
             case "circle":
-                console.log("Transform moveShapeTo of type circle");
+                //        console.log("Transform moveShapeTo of type circle");
                 resultObject = {
                     "type": "circle",
                     "points": [
@@ -131,7 +145,7 @@ function scalingShape(scalingFactor, data) {
                 };
                 break;
             case "polygon":
-                console.log("Transform moveShapeTo of type polygon");
+                //       console.log("Transform moveShapeTo of type polygon");
                 resultObject = {
                     "type": "polygon",
                     "numOfRibs": obj.numOfRibs,
@@ -142,7 +156,7 @@ function scalingShape(scalingFactor, data) {
                 };
                 break;
             case "curve":
-                console.log("Transform moveShapeTo of type curve");
+                //        console.log("Transform moveShapeTo of type curve");
                 resultObject = {
                     "type": "polygon",
                     "numOfSections": obj.numOfSections,
@@ -173,7 +187,7 @@ function moveShapeTo(deltaX, deltaY, data) {
         var resultObject;
         switch (obj.type) {
             case "line":
-                console.log("Transform moveShapeTo of type line");
+                //  console.log("Transform moveShapeTo of type line");
                 resultObject = {
                     "type": "line",
                     "points": [
@@ -183,7 +197,7 @@ function moveShapeTo(deltaX, deltaY, data) {
                 };
                 break;
             case "circle":
-                console.log("Transform moveShapeTo of type circle");
+                //    console.log("Transform moveShapeTo of type circle");
                 resultObject = {
                     "type": "circle",
                     "points": [
@@ -193,7 +207,7 @@ function moveShapeTo(deltaX, deltaY, data) {
                 };
                 break;
             case "polygon":
-                console.log("Transform moveShapeTo of type polygon");
+                //    console.log("Transform moveShapeTo of type polygon");
                 resultObject = {
                     "type": "polygon",
                     "numOfRibs": obj.numOfRibs,
@@ -204,7 +218,7 @@ function moveShapeTo(deltaX, deltaY, data) {
                 };
                 break;
             case "curve":
-                console.log("Transform moveShapeTo of type curve");
+                //   console.log("Transform moveShapeTo of type curve");
                 resultObject = {
                     "type": "polygon",
                     "numOfSections": obj.numOfSections,
@@ -229,18 +243,76 @@ function transformMovePoint(obj, index, deltaX, deltaY) {
     }
 }
 
-function scaleTransformation(x, y, data, scalingFactor) {
-    var dataMoved = moveShapeTo(-x, -y, data);
-    var dataTransformation = scalingShape(scalingFactor, dataMoved);
-    var dataResult = moveShapeTo(x, y, dataTransformation);
-    clearBoard();
-    drawShapesFromData(dataResult);
+function rotationShape(x, y, data) {
+    var dataResult = [];
+    var ph = calculateAngle(x, y);
+    console.log("PH:");
+    console.log(ph);
+    data.forEach(function (obj) {
+        var resultObject;
+        switch (obj.type) {
+            case "line":
+                //console.log("Transform rotation of type line");
+                resultObject = {
+                    "type": "line",
+                    "points": [
+                        transformRotationPoint(obj, 0, ph),
+                        transformRotationPoint(obj, 1, ph)
+                    ]
+                };
+                break;
+            case "circle":
+                // console.log("Transform rotation of type circle");
+                resultObject = {
+                    "type": "circle",
+                    "points": [
+                        transformRotationPoint(obj, 0, ph),
+                        transformRotationPoint(obj, 1, ph)
+                    ]
+                };
+                break;
+            case "polygon":
+                //   console.log("Transform rotation of type polygon");
+                resultObject = {
+                    "type": "polygon",
+                    "numOfRibs": obj.numOfRibs,
+                    "points": [
+                        transformRotationPoint(obj, 0, ph),
+                        transformRotationPoint(obj, 1, ph)
+                    ]
+                };
+                break;
+            case "curve":
+                //     console.log("Transform rotation of type curve");
+                resultObject = {
+                    "type": "polygon",
+                    "numOfSections": obj.numOfSections,
+                    "points": [
+                        transformRotationPoint(obj, 0, ph),
+                        transformRotationPoint(obj, 1, ph),
+                        transformRotationPoint(obj, 2, ph),
+                        transformRotationPoint(obj, 3, ph)
+                    ]
+                };
+                break
+        }
+        dataResult.push(resultObject);
+    });
+    return dataResult;
 }
 
-function rotationTransformation(x, y, data, scalingFactor) {
-
-
+function transformRotationPoint(obj, index, ph) {
+    return {
+        x: obj.points[index].x * Math.cos(ph) - obj.points[index].y * Math.sin(ph),
+        y: obj.points[index].x * Math.sin(ph) + obj.points[index].y * Math.cos(ph)
+    }
 }
+
+function calculateAngle(x, y) {
+    var r = calculateDistance(x, y, 0, 0);
+    return Math.acos((Math.pow(r, 2) + Math.pow(x, 2) - Math.pow(y, 2)) / ( 2 * r * x));
+}
+
 //drawing the line between first point to second point
 function drawLine(firstPoint_X, firstPoint_Y, secondPoint_X, secondPoint_Y) {
     var dx;
@@ -252,18 +324,18 @@ function drawLine(firstPoint_X, firstPoint_Y, secondPoint_X, secondPoint_Y) {
     }
 
     var range = Math.max(Math.abs(dx), Math.abs(dy));
-    console.log("Range:" + range);
+    //  console.log("Range:" + range);
 
     dxx = dx / range;
     var test = Math.abs(dxx);
     dyy = dy / range;
 
-    console.log("dxx: " + test + "dyy:  " + dyy);
+    // console.log("dxx: " + test + "dyy:  " + dyy);
 
     var x;
     var y;
     var m = dy / dx;
-    console.log("m" + m);
+    //  console.log("m" + m);
 
     x = firstPoint_X;
     y = firstPoint_Y;
@@ -283,6 +355,10 @@ function calcRadius(x1, y1, x2, y2) {
     var yr = y1 - y2;
     var powRadius = Math.pow(xr, 2) + Math.pow(yr, 2);
     return Math.sqrt(powRadius);
+}
+
+function calculateDistance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
 }
 
 function drawCircle(x1, y1, x2, y2) {
@@ -338,26 +414,26 @@ function drawBezierCurvest(x1, y1, x2, y2, x3, y3, x4, y4, numOfSections) {
 
 }
 
-function drawShapesFromData(data) {
+function drawShapes(data) {
     data.forEach(function (obj) {
         switch (obj.type) {
             case "line":
-                console.log("drawShapesFromData: draw line");
+                //        console.log("drawShapesFromData: draw line");
                 drawLine(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y);
                 break;
             case "circle":
-                console.log("drawShapesFromData: draw circle");
+                //     console.log("drawShapesFromData: draw circle");
                 drawCircle(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y);
                 break;
             case "polygon":
-                console.log("drawShapesFromData: draw polygon");
+                //     console.log("drawShapesFromData: draw polygon");
                 drawPolygon(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y, obj.numOfRibs);
                 break;
             case "curve":
-                console.log("drawShapesFromData: draw curve");
+                //     console.log("drawShapesFromData: draw curve");
                 drawBezierCurvest(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y, obj.points[2].x, obj.points[2].y, obj.points[3].x, obj.points[3].y, obj.numOfSections);
         }
     });
 }
 
-drawShapesFromData(data);
+drawShapes(data);
