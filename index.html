@@ -3,81 +3,37 @@
 <!-- students name: daria dadov (ID:319575676), or amit (ID:301427647)  -->
 
 
-
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="includes/style.css" >
-  </head>
-  <body>
-    <div id="wrapper">
-        <header>
-            <h1>Computer Graphics course (3504837)</h1>
-            <h2>Exercise 2</h2>
-            <h3>Students:</h3>
-            <h4>Daria Dadov (ID:319575676)</h4>
-            <h4>Or Amit (ID:301427647)</h4>
-            <h4>Dima Girya (ID:319308060)</h4>
-            <br>
-        </header>
-        <section class="menuSection1">
-            <!--<section class="pointsSection">-->
-                <h4>Board points:</h4>
-                <!--<p id="firstP" class="points">First Point:</p>-->
-                <!--<button class="btnChange" onclick="changeFirstPoint()">Change</button>-->
-
-                <!--<p id="secondP" class="points">Second Point:</p>-->
-                <!--<button class="btnChange" onclick="changeSecondPoint()">Change</button>-->
-
-                <button class="clearBoardBtn" onclick="clearBoard()">clear board</button>
-            <button class="clearBoardBtn" onclick="moveShape()">Move</button>
-            <button class="clearBoardBtn" onclick="transformScalingShape()">Scaling</button>
-
-            <!--</section>-->
-        </section>
+    <link rel="stylesheet" href="includes/style.css">
+</head>
+<body>
+<div id="wrapper">
+    <header>
+        <h1>Computer Graphics course (3504837)</h1>
+        <h2>Exercise 2</h2>
+        <h3>Students:</h3>
+        <h4>Daria Dadov (ID:319575676)</h4>
+        <h4>Or Amit (ID:301427647)</h4>
+        <h4>Dima Girya (ID:319308060)</h4>
+        <br>
+    </header>
+    <section class="menuSection1">
         <section class="menuSection2">
             <h4>Actions:</h4>
-
-            <!--<button class="drawBtn" id="line" onclick="MyLine()">Draw Line</button>-->
-            <!--<button class="drawBtn" id="circle" onclick="MyCircle()">Draw Circle</button>-->
-
-            <!--<fieldset class="poligonfieldset">-->
-                <!--<legend>my poligon</legend>-->
-                <!--number of sides:<input id="polyNum" type="number" name="number" min="3" value="3">-->
-                <!--<button style="background-color: lawngreen" onclick="MyPolygon()">Draw Polygon</button>-->
-            <!--</fieldset>-->
+            <button class="clearBoardBtn" onclick="resetBoard()">Reset board</button>
+            <button class="clearBoardBtn" onclick="moveShape()">Move</button>
+            <button class="clearBoardBtn" onclick="transformScalingShape()">Scaling</button>
+            <button class="clearBoardBtn" onclick="transformRotationShape()">Rotation</button>
         </section>
+    </section>
+    <canvas id="workingZone" width="800" height="800"></canvas>
+</div>
+<script src="includes/math.js"></script>
+<script src="includes/data.js"></script>
+<script src="includes/script.js"></script>
 
-
-        <!--<section class="menuSection2">-->
-
-            <!--&lt;!&ndash;<fieldset class="Bezierfieldset">&ndash;&gt;-->
-                <!--&lt;!&ndash;<legend>Bezier curves </legend>&ndash;&gt;-->
-                <!--&lt;!&ndash;<section class="sek1">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<p id="1_BezierPopint" class="points">First Point:</p>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<button class="btnChange" onclick="change1_BezierPopint()">Change</button>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<p id="2_BezierPopint" class="points">Second Point:</p>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<button class="btnChange" onclick="change2_BezierPopint()">Change</button>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<p id="3_BezierPopint" class="points">Third Point:</p>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<button class="btnChange" onclick="change3_BezierPopint()">Change</button>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<p id="4_BezierPopint" class="points">Fourth Point:</p>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<button class="btnChange" onclick="change4_BezierPopint()">Change</button>&ndash;&gt;-->
-                <!--&lt;!&ndash;</section>&ndash;&gt;-->
-
-                <!--&lt;!&ndash;<section class="sek2">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<p style="float: left">number of sections:<input id="bazSecNum" type="number" name="number" min="0" style="width: 40px" value="20"></p>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<button class="drawBtn2" onclick="drawBezierCurvest()">Draw bazier curve</button>&ndash;&gt;-->
-                <!--&lt;!&ndash;</section>&ndash;&gt;-->
-
-            <!--&lt;!&ndash;</fieldset>&ndash;&gt;-->
-        <!--</section>-->
-
-        <canvas id="workingZone" width="800" height="800"></canvas>
-    </div>
-    <script src="includes/math.js"></script>
-    <script src="includes/data.js"></script>
-    <script src="includes/script.js"></script>
-
-  </body>
+</body>
 </html>
