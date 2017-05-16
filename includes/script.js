@@ -113,7 +113,7 @@ function scaleTransformation(x, y, data, scalingFactor) {
 
 function rotationTransformation(x, y, data) {
     var dataMoved = moveShapeTo(-x, -y, data);
-    var dataTransformation = rotationShape(x, y, dataMoved);
+    var dataTransformation = rotationShape(90,dataMoved);
     var dataResult = moveShapeTo(x, y, dataTransformation);
     clearBoard();
     drawShapes(dataResult);
@@ -158,7 +158,7 @@ function scalingShape(scalingFactor, data) {
             case "curve":
                 //        console.log("Transform moveShapeTo of type curve");
                 resultObject = {
-                    "type": "polygon",
+                    "type": "curve",
                     "numOfSections": obj.numOfSections,
                     "points": [
                         transformScalePoint(obj, 0, scalingFactor),
@@ -220,7 +220,7 @@ function moveShapeTo(deltaX, deltaY, data) {
             case "curve":
                 //   console.log("Transform moveShapeTo of type curve");
                 resultObject = {
-                    "type": "polygon",
+                    "type": "curve",
                     "numOfSections": obj.numOfSections,
                     "points": [
                         transformMovePoint(obj, 0, deltaX, deltaY),
@@ -243,11 +243,8 @@ function transformMovePoint(obj, index, deltaX, deltaY) {
     }
 }
 
-function rotationShape(x, y, data) {
+function rotationShape(angle,data) {
     var dataResult = [];
-    var ph = calculateAngle(x, y);
-    console.log("PH:");
-    console.log(ph);
     data.forEach(function (obj) {
         var resultObject;
         switch (obj.type) {
@@ -256,8 +253,8 @@ function rotationShape(x, y, data) {
                 resultObject = {
                     "type": "line",
                     "points": [
-                        transformRotationPoint(obj, 0, ph),
-                        transformRotationPoint(obj, 1, ph)
+                        transformRotationPoint(obj, 0, angle),
+                        transformRotationPoint(obj, 1, angle)
                     ]
                 };
                 break;
@@ -266,8 +263,8 @@ function rotationShape(x, y, data) {
                 resultObject = {
                     "type": "circle",
                     "points": [
-                        transformRotationPoint(obj, 0, ph),
-                        transformRotationPoint(obj, 1, ph)
+                        transformRotationPoint(obj, 0, angle),
+                        transformRotationPoint(obj, 1, angle)
                     ]
                 };
                 break;
@@ -277,21 +274,21 @@ function rotationShape(x, y, data) {
                     "type": "polygon",
                     "numOfRibs": obj.numOfRibs,
                     "points": [
-                        transformRotationPoint(obj, 0, ph),
-                        transformRotationPoint(obj, 1, ph)
+                        transformRotationPoint(obj, 0, angle),
+                        transformRotationPoint(obj, 1, angle)
                     ]
                 };
                 break;
             case "curve":
                 //     console.log("Transform rotation of type curve");
                 resultObject = {
-                    "type": "polygon",
+                    "type": "curve",
                     "numOfSections": obj.numOfSections,
                     "points": [
-                        transformRotationPoint(obj, 0, ph),
-                        transformRotationPoint(obj, 1, ph),
-                        transformRotationPoint(obj, 2, ph),
-                        transformRotationPoint(obj, 3, ph)
+                        transformRotationPoint(obj, 0, angle),
+                        transformRotationPoint(obj, 1, angle),
+                        transformRotationPoint(obj, 2, angle),
+                        transformRotationPoint(obj, 3, angle)
                     ]
                 };
                 break
