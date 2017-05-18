@@ -2,7 +2,7 @@
 // students name: daria dadov (ID:319575676), or amit (ID:301427647),dima girya (319308060)
 const app = angular.module("graphicCourseHw2", []);
 app.controller("ctrl", function ($scope) {
-
+    var Yc = 400;
     console.log(data);
 
     var isNeedToMove = false;
@@ -55,9 +55,13 @@ app.controller("ctrl", function ($scope) {
     var ctx = canvasBoard.getContext("2d");
 
     canvasBoard.addEventListener('click', function (evt) {
+
+
         var deltaX;
         var deltaY;
         var mousePos = getMousePos(canvasBoard, evt);
+        console.log(mousePos.x);
+        console.log(mousePos.y);
         if (isNeedToMove === true) {
             if (counter === 0) {
                 firstPointX = mousePos.x;
@@ -129,10 +133,82 @@ app.controller("ctrl", function ($scope) {
 
     function rotationTransformation(x, y, data) {
         var dataMoved = moveShapeTo(-x, -y, data);
-        var dataTransformation = rotationShape(0, dataMoved);
+        var dataTransformation = rotationShape(90, dataMoved);
         var dataResult = moveShapeTo(x, y, dataTransformation);
         clearBoard();
         drawShapes(dataResult);
+    }
+
+    function mirorTransformation(x, y, data) {
+        // var dataMoved = moveShapeTo(-x, -y, data);
+        var dataTransformation = mirorShape(x, y, data);
+        //  var dataResult = moveShapeTo(x, y, dataTransformation);
+        clearBoard();
+        drawShapes(dataTransformation);
+    }
+
+
+    function mirorShape(x, y, data) {
+        var dataResult = [];
+        data.forEach(function (obj) {
+            var resultObject;
+            switch (obj.type) {
+                case "line":
+                    //  console.log("Transform moveShapeTo of type line");
+                    resultObject = {
+                        "type": "line",
+                        "points": [
+                            transformMirorPoint(obj, 0, y),
+                            transformMirorPoint(obj, 1, y)
+                        ]
+                    };
+                    break;
+                case "circle":
+                    //        console.log("Transform moveShapeTo of type circle");
+                    resultObject = {
+                        "type": "circle",
+                        "points": [
+                            transformMirorPoint(obj, 0, y),
+                            transformMirorPoint(obj, 1, y)
+                        ]
+                    };
+                    break;
+                case "polygon":
+                    //       console.log("Transform moveShapeTo of type polygon");
+                    resultObject = {
+                        "type": "polygon",
+                        "numOfRibs": obj.numOfRibs,
+                        "points": [
+                            transformMirorPoint(obj, 0, y),
+                            transformMirorPoint(obj, 1, y)
+                        ]
+                    };
+                    break;
+                case "curve":
+                    //        console.log("Transform moveShapeTo of type curve");
+                    resultObject = {
+                        "type": "curve",
+                        "numOfSections": obj.numOfSections,
+                        "points": [
+                            transformMirorPoint(obj, 0, y),
+                            transformMirorPoint(obj, 1, y),
+                            transformMirorPoint(obj, 2, y),
+                            transformMirorPoint(obj, 3, y)
+                        ]
+                    };
+                    break
+            }
+            dataResult.push(resultObject);
+        });
+        return dataResult;
+    }
+
+    function transformMirorPoint(obj, index, Yc) {
+        console.log(obj.points[index].x, 2 * Yc * -obj.points[index].y);
+        return {
+            x: obj.points[index].x,
+            y: 2 * Yc - obj.points[index].y
+        }
     }
 
     function scalingShape(scalingFactor, data) {
@@ -453,8 +529,8 @@ app.controller("ctrl", function ($scope) {
                     drawBezierCurvest(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y, obj.points[2].x, obj.points[2].y, obj.points[3].x, obj.points[3].y, obj.numOfSections);
             }
         });
+        //      drawLine(0,Yc,800,Yc);
     }
 
     drawShapes(data);
-
 });
