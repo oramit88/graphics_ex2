@@ -2,15 +2,18 @@
 // students name: daria dadov (ID:319575676), or amit (ID:301427647),dima girya (319308060)
 const app = angular.module("graphicCourseHw2", []);
 app.controller("ctrl", function ($scope) {
-    var Yc = 400;
-    console.log(data);
 
     var isNeedToMove = false;
     var isNeedToScale = false;
     var isNeedToRotation = false;
     var isNeedToMirror = false;
-
+    var isNeedToShearing = false;
+    var  copyOfData = angular.copy(data);
+    $scope.scaleFactor = 0.5;
+    $scope.rotateAngle = 45;
+    $scope.shearingFactor = 1.1;
     $scope.resetBoard = function () {
+        data = copyOfData ;
         clearBoard();
         drawShapes(data);
     };
@@ -36,12 +39,18 @@ app.controller("ctrl", function ($scope) {
         isNeedToMirror = true;
     };
 
+    $scope.transformShearingShape = function () {
+        setFlagsToFalse();
+        isNeedToShearing = true;
+    };
+
 
     function setFlagsToFalse() {
         isNeedToRotation = false;
         isNeedToScale = false;
         isNeedToMove = false;
         isNeedToMirror = false;
+        isNeedToShearing = false;
     }
 
 //add an event listener to mouse pressing
@@ -55,8 +64,6 @@ app.controller("ctrl", function ($scope) {
     var ctx = canvasBoard.getContext("2d");
 
     canvasBoard.addEventListener('click', function (evt) {
-
-
         var deltaX;
         var deltaY;
         var mousePos = getMousePos(canvasBoard, evt);
@@ -74,19 +81,29 @@ app.controller("ctrl", function ($scope) {
                 deltaX = secPointX - firstPointX;
                 deltaY = secPointY - firstPointY;
                 clearBoard();
-                drawShapes(moveShapeTo(deltaX, deltaY, data));
+                data = moveShapeTo(deltaX, deltaY, data);
+                drawShapes(data);
                 counter = 0;
+                setFlagsToFalse();
             }
         }
         else if (isNeedToScale === true) {
-            scaleTransformation(mousePos.x, mousePos.y, data, 0.7);
+            data = scaleTransformation(mousePos.x, mousePos.y, data, $scope.scaleFactor);
+            setFlagsToFalse();
         }
         else if (isNeedToRotation === true) {
-            rotationTransformation(mousePos.x, mousePos.y, data);
+            data = rotationTransformation(mousePos.x, mousePos.y, data, $scope.rotateAngle);
+            setFlagsToFalse();
         }
         else if (isNeedToMirror === true) {
-            mirorTransformation(mousePos.x, mousePos.y, data);
+            data = mirorTransformation(mousePos.x, mousePos.y, data);
+            setFlagsToFalse();
         }
+        else if (isNeedToShearing === true) {
+            data = shearingTransformation(mousePos.x, mousePos.y, data, $scope.shearingFactor);
+            setFlagsToFalse();
+        }
+
     }, false);
 
 
@@ -94,24 +111,11 @@ app.controller("ctrl", function ($scope) {
         ctx.clearRect(0, 0, 800, 800);
     }
 
-
-    function resetBoard() {
-        clearBoard();
-        drawShapes(data);
-    }
-
-
 //draws a pixel on the board in (x,y) point
     function putPixel(x, y) {
         ctx = canvasBoard.getContext("2d");
         ctx.fillStyle = "#000000";
         ctx.fillRect(x, y, 4, 4);
-    }
-
-    function deletePixel(x, y) {
-        ctx = canvasBoard.getContext("2d");
-        ctx.fillStyle = "yellow";
-        ctx.fillRect(x, y, 1, 1);
     }
 
 //returns the mouse position when user click's on the board
@@ -129,22 +133,91 @@ app.controller("ctrl", function ($scope) {
         var dataResult = moveShapeTo(x, y, dataTransformation);
         clearBoard();
         drawShapes(dataResult);
+        return dataResult;
     }
 
     function rotationTransformation(x, y, data) {
         var dataMoved = moveShapeTo(-x, -y, data);
-        var dataTransformation = rotationShape(90, dataMoved);
+        var dataTransformation = rotationShape($scope.rotateAngle, dataMoved);
         var dataResult = moveShapeTo(x, y, dataTransformation);
         clearBoard();
         drawShapes(dataResult);
+        return dataResult;
     }
 
     function mirorTransformation(x, y, data) {
-        // var dataMoved = moveShapeTo(-x, -y, data);
-        var dataTransformation = mirorShape(x, y, data);
-        //  var dataResult = moveShapeTo(x, y, dataTransformation);
+        var dataResult = mirorShape(x, y, data);
         clearBoard();
-        drawShapes(dataTransformation);
+        drawLine(0, y, 800, y);
+        drawShapes(dataResult);
+        return dataResult;
+    }
+
+    function shearingTransformation(x, y, data, shearingFactor) {
+        var dataMoved = moveShapeTo(-x, -y, data);
+        var dataTransformation = shearingShape(x, y, dataMoved, shearingFactor);
+        var dataResult = moveShapeTo(x, y, dataTransformation);
+        clearBoard();
+        drawShapes(dataResult);
+        return dataResult;
+    }
+
+    function shearingShape(x, y, data, a) {
+        var dataResult = [];
+        data.forEach(function (obj) {
+            var resultObject;
+            switch (obj.type) {
+                case "line":
+                    resultObject = {
+                        "type": "line",
+                        "points": [
+                            transformShearingPoint(obj, 0, a),
+                            transformShearingPoint(obj, 1, a)
+                        ]
+                    };
+                    break;
+                case "circle":
+                    resultObject = {
+                        "type": "circle",
+                        "points": [
+                            transformShearingPoint(obj, 0, a),
+                            transformShearingPoint(obj, 1, a)
+                        ]
+                    };
+                    break;
+                case "polygon":
+                    resultObject = {
+                        "type": "polygon",
+                        "numOfRibs": obj.numOfRibs,
+                        "points": [
+                            transformShearingPoint(obj, 0, a),
+                            transformShearingPoint(obj, 1, a)
+                        ]
+                    };
+                    break;
+                case "curve":
+                    resultObject = {
+                        "type": "curve",
+                        "numOfSections": obj.numOfSections,
+                        "points": [
+                            transformShearingPoint(obj, 0, a),
+                            transformShearingPoint(obj, 1, a),
+                            transformShearingPoint(obj, 2, a),
+                            transformShearingPoint(obj, 3, a)
+                        ]
+                    };
+                    break
+            }
+            dataResult.push(resultObject);
+        });
+        return dataResult;
+    }
+
+    function transformShearingPoint(obj, index, a) {
+        return {
+            x: obj.points[index].x + a * obj.points[index].y,
+            y: obj.points[index].y
+        }
     }
 
 
@@ -154,7 +227,6 @@ app.controller("ctrl", function ($scope) {
             var resultObject;
             switch (obj.type) {
                 case "line":
-                    //  console.log("Transform moveShapeTo of type line");
                     resultObject = {
                         "type": "line",
                         "points": [
@@ -164,7 +236,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "circle":
-                    //        console.log("Transform moveShapeTo of type circle");
                     resultObject = {
                         "type": "circle",
                         "points": [
@@ -174,7 +245,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "polygon":
-                    //       console.log("Transform moveShapeTo of type polygon");
                     resultObject = {
                         "type": "polygon",
                         "numOfRibs": obj.numOfRibs,
@@ -185,7 +255,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "curve":
-                    //        console.log("Transform moveShapeTo of type curve");
                     resultObject = {
                         "type": "curve",
                         "numOfSections": obj.numOfSections,
@@ -217,7 +286,6 @@ app.controller("ctrl", function ($scope) {
             var resultObject;
             switch (obj.type) {
                 case "line":
-                    //  console.log("Transform moveShapeTo of type line");
                     resultObject = {
                         "type": "line",
                         "points": [
@@ -227,7 +295,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "circle":
-                    //        console.log("Transform moveShapeTo of type circle");
                     resultObject = {
                         "type": "circle",
                         "points": [
@@ -237,7 +304,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "polygon":
-                    //       console.log("Transform moveShapeTo of type polygon");
                     resultObject = {
                         "type": "polygon",
                         "numOfRibs": obj.numOfRibs,
@@ -248,7 +314,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "curve":
-                    //        console.log("Transform moveShapeTo of type curve");
                     resultObject = {
                         "type": "curve",
                         "numOfSections": obj.numOfSections,
@@ -279,7 +344,6 @@ app.controller("ctrl", function ($scope) {
             var resultObject;
             switch (obj.type) {
                 case "line":
-                    //  console.log("Transform moveShapeTo of type line");
                     resultObject = {
                         "type": "line",
                         "points": [
@@ -289,7 +353,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "circle":
-                    //    console.log("Transform moveShapeTo of type circle");
                     resultObject = {
                         "type": "circle",
                         "points": [
@@ -299,7 +362,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "polygon":
-                    //    console.log("Transform moveShapeTo of type polygon");
                     resultObject = {
                         "type": "polygon",
                         "numOfRibs": obj.numOfRibs,
@@ -310,7 +372,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "curve":
-                    //   console.log("Transform moveShapeTo of type curve");
                     resultObject = {
                         "type": "curve",
                         "numOfSections": obj.numOfSections,
@@ -336,16 +397,11 @@ app.controller("ctrl", function ($scope) {
     }
 
     function rotationShape(angle, data) {
-        console.log("rotationShape");
-        console.log("angle:" + angle);
-        console.log("data:");
-        console.log(data);
         var dataResult = [];
         data.forEach(function (obj) {
             var resultObject;
             switch (obj.type) {
                 case "line":
-                    //console.log("Transform rotation of type line");
                     resultObject = {
                         "type": "line",
                         "points": [
@@ -355,7 +411,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "circle":
-                    // console.log("Transform rotation of type circle");
                     resultObject = {
                         "type": "circle",
                         "points": [
@@ -365,7 +420,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "polygon":
-                    //   console.log("Transform rotation of type polygon");
                     resultObject = {
                         "type": "polygon",
                         "numOfRibs": obj.numOfRibs,
@@ -376,7 +430,6 @@ app.controller("ctrl", function ($scope) {
                     };
                     break;
                 case "curve":
-                    //     console.log("Transform rotation of type curve");
                     resultObject = {
                         "type": "curve",
                         "numOfSections": obj.numOfSections,
@@ -395,16 +448,10 @@ app.controller("ctrl", function ($scope) {
     }
 
     function transformRotationPoint(obj, index, ph) {
-        console.log("Ph:" + ph);
         return {
             x: obj.points[index].x * Math.cos(ph) - obj.points[index].y * Math.sin(ph),
             y: obj.points[index].x * Math.sin(ph) + obj.points[index].y * Math.cos(ph)
         }
-    }
-
-    function calculateAngle(x, y) {
-        var r = calculateDistance(x, y, 0, 0);
-        return Math.acos((Math.pow(r, 2) + Math.pow(x, 2) - Math.pow(y, 2)) / ( 2 * r * x));
     }
 
 //drawing the line between first point to second point
@@ -418,18 +465,12 @@ app.controller("ctrl", function ($scope) {
         }
 
         var range = Math.max(Math.abs(dx), Math.abs(dy));
-        //  console.log("Range:" + range);
 
-        dxx = dx / range;
-        var test = Math.abs(dxx);
-        dyy = dy / range;
-
-        // console.log("dxx: " + test + "dyy:  " + dyy);
+        var dxx = dx / range;
+        var dyy = dy / range;
 
         var x;
         var y;
-        var m = dy / dx;
-        //  console.log("m" + m);
 
         x = firstPoint_X;
         y = firstPoint_Y;
@@ -468,8 +509,8 @@ app.controller("ctrl", function ($scope) {
 
     function drawPolygon(x1, y1, x2, y2, numOfRibs) {
         radius = calcRadius(x1, y1, x2, y2);
-        var lastPx = x1 + radius * Math.cos(0 * 2 * Math.PI / numOfRibs);
-        var lastPy = y1 + radius * Math.sin(0 * 2 * Math.PI / numOfRibs);
+        var lastPx = x1 + radius * Math.cos(0 / numOfRibs);
+        var lastPy = y1 + radius * Math.sin(0 / numOfRibs);
         for (var i = 1; i <= numOfRibs; i++) {
             var x = x1 + radius * Math.cos(i * 2 * Math.PI / numOfRibs);
             var y = y1 + radius * Math.sin(i * 2 * Math.PI / numOfRibs);
@@ -478,7 +519,6 @@ app.controller("ctrl", function ($scope) {
             lastPx = x;
             lastPy = y;
         }
-
     }
 
 
@@ -513,23 +553,18 @@ app.controller("ctrl", function ($scope) {
         data.forEach(function (obj) {
             switch (obj.type) {
                 case "line":
-                    //        console.log("drawShapesFromData: draw line");
                     drawLine(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y);
                     break;
                 case "circle":
-                    //     console.log("drawShapesFromData: draw circle");
                     drawCircle(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y);
                     break;
                 case "polygon":
-                    //     console.log("drawShapesFromData: draw polygon");
                     drawPolygon(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y, obj.numOfRibs);
                     break;
                 case "curve":
-                    //     console.log("drawShapesFromData: draw curve");
                     drawBezierCurvest(obj.points[0].x, obj.points[0].y, obj.points[1].x, obj.points[1].y, obj.points[2].x, obj.points[2].y, obj.points[3].x, obj.points[3].y, obj.numOfSections);
             }
         });
-        //      drawLine(0,Yc,800,Yc);
     }
 
     drawShapes(data);
