@@ -1,6 +1,6 @@
-<!--Computer Graphics (3504837)- Exercise 1-->
+<!--Computer Graphics (3504837)- Exercise 2-->
 <!-- Date: 19.4.2017-->
-<!-- students name: daria dadov (ID:319575676), or amit (ID:301427647)  -->
+<!-- students name: Daria Dadov (ID:319575676), Or Amit (ID:301427647) Dima Girya 319308060 -->
 
 
 <!DOCTYPE html>
@@ -8,8 +8,9 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="includes/style.css">
+    <script src="includes/angular.min.js"></script>
 </head>
-<body>
+<body ng-app="graphicCourseHw2" ng-controller="ctrl">
 <div id="wrapper">
     <header>
         <h1>Computer Graphics course (3504837)</h1>
@@ -23,10 +24,11 @@
     <section class="menuSection1">
         <section class="menuSection2">
             <h4>Actions:</h4>
-            <button class="clearBoardBtn" onclick="resetBoard()">Reset board</button>
-            <button class="clearBoardBtn" onclick="moveShape()">Move</button>
-            <button class="clearBoardBtn" onclick="transformScalingShape()">Scaling</button>
-            <button class="clearBoardBtn" onclick="transformRotationShape()">Rotation</button>
+            <button class="clearBoardBtn" ng-click="resetBoard()">Reset board</button>
+            <button class="clearBoardBtn" ng-click="moveShape()">Move</button>
+            <button class="clearBoardBtn" ng-click="transformScalingShape()">Scaling</button>
+            <button class="clearBoardBtn" ng-click="transformRotationShape()">Rotation</button>
+            <button class="clearBoardBtn" ng-click="transformMirrorShape()">Mirror</button>
         </section>
     </section>
     <canvas id="workingZone" width="800" height="800"></canvas>
