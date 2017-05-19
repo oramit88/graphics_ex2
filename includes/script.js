@@ -8,42 +8,70 @@ app.controller("ctrl", function ($scope) {
     var isNeedToRotation = false;
     var isNeedToMirror = false;
     var isNeedToShearing = false;
-    var  copyOfData = angular.copy(data);
+    $scope.currentOperation = "Not selected";
+
+    var copyOfData = angular.copy(data);
     $scope.scaleFactor = 0.5;
     $scope.rotateAngle = 45;
     $scope.shearingFactor = 1.1;
+
     $scope.resetBoard = function () {
-        data = copyOfData ;
+        data = copyOfData;
         clearBoard();
+        setFlagsToFalse();
         drawShapes(data);
     };
 
     $scope.moveShape = function () {
         setFlagsToFalse();
         isNeedToMove = true;
+        updateCurrentOperation();
     };
 
     $scope.transformScalingShape = function () {
         setFlagsToFalse();
         isNeedToScale = true;
+        updateCurrentOperation();
     };
 
 
     $scope.transformRotationShape = function () {
         setFlagsToFalse();
         isNeedToRotation = true;
+        updateCurrentOperation();
     };
 
     $scope.transformMirrorShape = function () {
         setFlagsToFalse();
         isNeedToMirror = true;
+        updateCurrentOperation();
     };
 
     $scope.transformShearingShape = function () {
         setFlagsToFalse();
         isNeedToShearing = true;
+        updateCurrentOperation();
     };
 
+    function updateCurrentOperation() {
+        console.log($scope.currentOperation)
+        if (isNeedToRotation) {
+            $scope.currentOperation = "Rotation";
+        }
+        else if (isNeedToScale) {
+            $scope.currentOperation = "Scale";
+        }
+        else if (isNeedToMove) {
+            $scope.currentOperation = "Move";
+        }
+        else if (isNeedToMirror) {
+            $scope.currentOperation = "Mirror";
+        }
+        else if (isNeedToShearing) {
+            $scope.currentOperation = "Shearing";
+        }
+        console.log($scope.currentOperation)
+    }
 
     function setFlagsToFalse() {
         isNeedToRotation = false;
@@ -51,6 +79,8 @@ app.controller("ctrl", function ($scope) {
         isNeedToMove = false;
         isNeedToMirror = false;
         isNeedToShearing = false;
+        $scope.currentOperation = "Not selected";
+        updateCurrentOperation();
     }
 
 //add an event listener to mouse pressing
