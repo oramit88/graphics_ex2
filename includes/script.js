@@ -89,10 +89,8 @@ app.controller("ctrl", function ($scope) {
         console.log($scope.currentOperation)
     }
 
-
     var firstPointX, firstPointY, secPointX, secPointY;
     var counter = 0; //the number of points that the user pressed so far.
-
 
 //the board
     var canvasBoard = document.getElementById("workingZone");
@@ -146,11 +144,9 @@ app.controller("ctrl", function ($scope) {
         }
     }, false);
 
-
     function clearBoard() {
         ctx.clearRect(0, 0, 800, 800);
     }
-
     //draws a pixel on the board in (x,y) point
     function putPixel(x, y) {
         ctx = canvasBoard.getContext("2d");
@@ -551,7 +547,6 @@ app.controller("ctrl", function ($scope) {
         }
     }
 
-
     function drawPolygon(x1, y1, x2, y2, numOfRibs) {
         radius = calcRadius(x1, y1, x2, y2);
         var lastPx = x1 + radius * Math.cos(0 / numOfRibs);
@@ -565,7 +560,6 @@ app.controller("ctrl", function ($scope) {
             lastPy = y;
         }
     }
-
 
     function drawBezierCurvest(x1, y1, x2, y2, x3, y3, x4, y4, numOfSections) {
         var buzierMatrix = math.matrix([[-1, 3, -3, 1], [3, -6, 3, 0], [-3, 3, 0, 0], [1, 0, 0, 0]]);

@@ -27,27 +27,41 @@
             <h4>Actions:</h4>
             <button class="clearBoardBtn" ng-click="resetBoard()">Reset board</button>
             <button class="clearBoardBtn" ng-click="moveShape()">Move</button>
+            <button class="clearBoardBtn " ng-click="transformMirrorShape()">Mirror</button>
             <button class="clearBoardBtn" ng-click="transformScalingShape()">Scaling</button>
-            <span>Scaling factor:</span>
-            <input type="number"
-                   ng-model="scaleFactor"
-                   min="0.1"
-                   step="0.1"
-                   max="2">
-            <button class="clearBoardBtn" ng-click="transformShearingShape()">Shearing</button>
-            <span>Shearing factor:</span>
-            <input type="number"
-                   ng-model="shearingFactor"
-                   step="0.1"
-                   min="0"
-                   max="180">
-            <button class="clearBoardBtn" ng-click="transformRotationShape()">Rotation</button>
-            <span>Rotate angle:</span>
-            <input type="number"
-                   ng-model="rotateAngle"
-                   min="0"
-                   max="180">
-            <button class="clearBoardBtn" ng-click="transformMirrorShape()">Mirror</button>
+
+            <section class="factorSection">
+                <section class="factorClass">
+                    <span >Scaling factor:</span>
+                    <input type="number"
+                           ng-model="scaleFactor"
+                           min="0.1"
+                           step="0.1"
+                           max="2">
+                </section>
+                <button class="clearBoardBtn " ng-click="transformShearingShape()">Shearing</button>
+
+                <section class="factorClass">
+                <span>Shearing factor:</span>
+                <input type="number"
+                       ng-model="shearingFactor"
+                       step="0.1"
+                       min="0"
+                       max="180"
+                       >
+                </section>
+                <button class="clearBoardBtn " ng-click="transformRotationShape()">Rotation</button>
+
+                <section class="factorClass">
+                <span >Rotate angle:</span>
+                <input type="number"
+                       ng-model="rotateAngle"
+                       min="0"
+                       max="180"
+                       >
+                </section>
+            </section>
+
         </section>
     </section>
     <canvas id="workingZone" width="800" height="800"></canvas>
