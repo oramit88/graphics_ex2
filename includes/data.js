@@ -10,7 +10,7 @@ var data = [
         "type": "line",
         "points": [{
             x: 50 + x,
-            y: 200+ y
+            y: 200 + y
         },
             {
                 x: 250 + x,

@@ -15,11 +15,13 @@ app.controller("ctrl", function ($scope) {
     $scope.rotateAngle = 45;
     $scope.shearingFactor = 1.1;
 
+    /*clear board function*/
     $scope.resetBoard = function () {
-        data = copyOfData;
+        data = copyOfData; //reset the data to the source
         clearBoard();
         setFlagsToFalse();
         drawShapes(data);
+        updateCurrentOperation();
     };
 
     $scope.moveShape = function () {
@@ -53,8 +55,19 @@ app.controller("ctrl", function ($scope) {
         updateCurrentOperation();
     };
 
+    function setFlagsToFalse() {
+        $scope.currentOperation ="none";
+        isNeedToRotation = false;
+        isNeedToScale = false;
+        isNeedToMove = false;
+        isNeedToMirror = false;
+        isNeedToShearing = false;
+        updateCurrentOperation();
+    }
+
+    /*update the giu with the cuurrent operation name*/
     function updateCurrentOperation() {
-        console.log($scope.currentOperation)
+        console.log($scope.currentOperation);
         if (isNeedToRotation) {
             $scope.currentOperation = "Rotation";
         }
@@ -70,35 +83,29 @@ app.controller("ctrl", function ($scope) {
         else if (isNeedToShearing) {
             $scope.currentOperation = "Shearing";
         }
+        else {
+            $scope.currentOperation = "Not selected";
+        }
         console.log($scope.currentOperation)
     }
 
-    function setFlagsToFalse() {
-        isNeedToRotation = false;
-        isNeedToScale = false;
-        isNeedToMove = false;
-        isNeedToMirror = false;
-        isNeedToShearing = false;
-        $scope.currentOperation = "Not selected";
-        updateCurrentOperation();
-    }
-
-//add an event listener to mouse pressing
 
     var firstPointX, firstPointY, secPointX, secPointY;
-    var counter = 0;
+    var counter = 0; //the number of points that the user pressed so far.
 
 
 //the board
     var canvasBoard = document.getElementById("workingZone");
     var ctx = canvasBoard.getContext("2d");
 
+//add an event listener to mouse pressing
     canvasBoard.addEventListener('click', function (evt) {
         var deltaX;
         var deltaY;
         var mousePos = getMousePos(canvasBoard, evt);
         console.log(mousePos.x);
         console.log(mousePos.y);
+        /*move action*/
         if (isNeedToMove === true) {
             if (counter === 0) {
                 firstPointX = mousePos.x;
@@ -117,23 +124,26 @@ app.controller("ctrl", function ($scope) {
                 setFlagsToFalse();
             }
         }
+        /*Scale action*/
         else if (isNeedToScale === true) {
             data = scaleTransformation(mousePos.x, mousePos.y, data, $scope.scaleFactor);
             setFlagsToFalse();
         }
+        /*Rotation action*/
         else if (isNeedToRotation === true) {
             data = rotationTransformation(mousePos.x, mousePos.y, data, $scope.rotateAngle);
             setFlagsToFalse();
         }
+        /*Mirror action*/
         else if (isNeedToMirror === true) {
             data = mirorTransformation(mousePos.x, mousePos.y, data);
             setFlagsToFalse();
         }
+        /*Shearing action*/
         else if (isNeedToShearing === true) {
             data = shearingTransformation(mousePos.x, mousePos.y, data, $scope.shearingFactor);
             setFlagsToFalse();
         }
-
     }, false);
 
 
@@ -141,14 +151,14 @@ app.controller("ctrl", function ($scope) {
         ctx.clearRect(0, 0, 800, 800);
     }
 
-//draws a pixel on the board in (x,y) point
+    //draws a pixel on the board in (x,y) point
     function putPixel(x, y) {
         ctx = canvasBoard.getContext("2d");
         ctx.fillStyle = "#000000";
         ctx.fillRect(x, y, 4, 4);
     }
 
-//returns the mouse position when user click's on the board
+    //returns the mouse position when user click's on the board
     function getMousePos(canvas, evt) {
         var rect = canvas.getBoundingClientRect();
         return {
@@ -158,40 +168,41 @@ app.controller("ctrl", function ($scope) {
     }
 
     function scaleTransformation(x, y, data, scalingFactor) {
-        var dataMoved = moveShapeTo(-x, -y, data);
+        var dataMoved = moveShapeTo(-x, -y, data); //moving the shape to the (0,0) point
         var dataTransformation = scalingShape(scalingFactor, dataMoved);
-        var dataResult = moveShapeTo(x, y, dataTransformation);
+        var dataResult = moveShapeTo(x, y, dataTransformation);//moving back
         clearBoard();
-        drawShapes(dataResult);
+        drawShapes(dataResult);//draws the shape after the transformation
         return dataResult;
     }
 
     function rotationTransformation(x, y, data) {
-        var dataMoved = moveShapeTo(-x, -y, data);
+        var dataMoved = moveShapeTo(-x, -y, data); //moving the shape to the (0,0) point
         var dataTransformation = rotationShape($scope.rotateAngle, dataMoved);
-        var dataResult = moveShapeTo(x, y, dataTransformation);
+        var dataResult = moveShapeTo(x, y, dataTransformation);//moving back
         clearBoard();
-        drawShapes(dataResult);
+        drawShapes(dataResult);//draws the shape after the transformation
         return dataResult;
     }
 
     function mirorTransformation(x, y, data) {
         var dataResult = mirorShape(x, y, data);
         clearBoard();
-        drawLine(0, y, 800, y);
-        drawShapes(dataResult);
+        drawLine(0, y, 800, y); //the miror axis
+        drawShapes(dataResult);//draws the shape after the transformation
         return dataResult;
     }
 
     function shearingTransformation(x, y, data, shearingFactor) {
-        var dataMoved = moveShapeTo(-x, -y, data);
+        var dataMoved = moveShapeTo(-x, -y, data); //moving the shape to the (0,0) point
         var dataTransformation = shearingShape(x, y, dataMoved, shearingFactor);
-        var dataResult = moveShapeTo(x, y, dataTransformation);
+        var dataResult = moveShapeTo(x, y, dataTransformation);//moving back
         clearBoard();
-        drawShapes(dataResult);
+        drawShapes(dataResult);//draws the shape after the transformation
         return dataResult;
     }
 
+    /*will change the data according to the shearingShape transformation-*/
     function shearingShape(x, y, data, a) {
         var dataResult = [];
         data.forEach(function (obj) {
@@ -250,7 +261,7 @@ app.controller("ctrl", function ($scope) {
         }
     }
 
-
+    /*will change the data according to the mirorShape transformation-*/
     function mirorShape(x, y, data) {
         var dataResult = [];
         data.forEach(function (obj) {
@@ -310,6 +321,7 @@ app.controller("ctrl", function ($scope) {
         }
     }
 
+    /*will change the data according to the scalingShape transformation-*/
     function scalingShape(scalingFactor, data) {
         var dataResult = [];
         data.forEach(function (obj) {
@@ -368,6 +380,8 @@ app.controller("ctrl", function ($scope) {
         }
     }
 
+
+    /*will change the data according to the moveShapeTo transformation-*/
     function moveShapeTo(deltaX, deltaY, data) {
         var dataResult = [];
         data.forEach(function (obj) {
@@ -426,6 +440,7 @@ app.controller("ctrl", function ($scope) {
         }
     }
 
+    /*will change the data according to the rotationShape transformation-*/
     function rotationShape(angle, data) {
         var dataResult = [];
         data.forEach(function (obj) {
@@ -484,7 +499,7 @@ app.controller("ctrl", function ($scope) {
         }
     }
 
-//drawing the line between first point to second point
+    //drawing the line between first point to second point
     function drawLine(firstPoint_X, firstPoint_Y, secondPoint_X, secondPoint_Y) {
         var dx;
         var dy;
@@ -576,7 +591,6 @@ app.controller("ctrl", function ($scope) {
             lastPointX = final_X._data[0][0];
             lastPointY = final_y._data[0][0];
         }
-
     }
 
     function drawShapes(data) {

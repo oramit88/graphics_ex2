@@ -32,11 +32,13 @@
             <input type="number"
                    ng-model="scaleFactor"
                    min="0.1"
+                   step="0.1"
                    max="2">
             <button class="clearBoardBtn" ng-click="transformShearingShape()">Shearing</button>
             <span>Shearing factor:</span>
             <input type="number"
                    ng-model="shearingFactor"
+                   step="0.1"
                    min="0"
                    max="180">
             <button class="clearBoardBtn" ng-click="transformRotationShape()">Rotation</button>
