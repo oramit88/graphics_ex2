@@ -19,9 +19,17 @@ app.controller("ctrl", function ($scope) {
     $scope.resetBoard = function () {
         data = copyOfData; //reset the data to the source
         clearBoard();
-        setFlagsToFalse();
-        drawShapes(data);
-        updateCurrentOperation();
+        try {
+            validateData(data);
+            setFlagsToFalse();
+            drawShapes(data);
+            updateCurrentOperation();
+        }
+        catch (e) {
+            alert(e);
+            alert("Fix data and reload the page")
+        }
+
     };
 
     $scope.moveShape = function () {
@@ -56,7 +64,7 @@ app.controller("ctrl", function ($scope) {
     };
 
     function setFlagsToFalse() {
-        $scope.currentOperation ="none";
+        $scope.currentOperation = "none";
         isNeedToRotation = false;
         isNeedToScale = false;
         isNeedToMove = false;
@@ -605,5 +613,76 @@ app.controller("ctrl", function ($scope) {
         });
     }
 
-    drawShapes(data);
+    function validateData(data) {
+        data.forEach(function (obj) {
+            var resultObject;
+            switch (obj.type) {
+                case "line":
+                    resultObject = {
+                        "type": "line",
+                        "points": [
+                            validatePoint(obj, 0),
+                            validatePoint(obj, 1)
+                        ]
+                    };
+                    break;
+                case "circle":
+                    resultObject = {
+                        "type": "circle",
+                        "points": [
+                            validatePoint(obj, 0),
+                            validatePoint(obj, 1)
+                        ]
+                    };
+                    break;
+                case "polygon":
+                    resultObject = {
+                        "type": "polygon",
+                        "numOfRibs": obj.numOfRibs,
+                        "points": [
+                            validatePoint(obj, 0),
+                            validatePoint(obj, 1)
+                        ]
+                    };
+                    break;
+                case "curve":
+                    resultObject = {
+                        "type": "curve",
+                        "numOfSections": obj.numOfSections,
+                        "points": [
+                            validatePoint(obj, 0),
+                            validatePoint(obj, 1),
+                            validatePoint(obj, 2),
+                            validatePoint(obj, 3)
+                        ]
+                    };
+                    break
+            }
+        });
+    }
+
+    function validatePoint(obj, index) {
+        if (typeof  obj.points[index].x !== "number") {
+            throw "Point must by number";
+        }
+        if (typeof  obj.points[index].y !== "number") {
+            throw "Point can'by number";
+        }
+        if (obj.points[index].x < 0) {
+            throw "Point can'by negative";
+        }
+        if (obj.points[index].y < 0) {
+            throw "Point can'by negative";
+        }
+    }
+
+    try {
+        validateData(data);
+        drawShapes(data);
+    }
+    catch (e) {
+        alert(e);
+        alert("Fix data and reload the page")
+    }
+
 });

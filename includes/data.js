@@ -8,7 +8,7 @@ var data = [
     {
         "type": "circle",
         "points": [{
-            x: 336 + x,
+            x: 336 ,
             y: 140 + y
         },
             {
